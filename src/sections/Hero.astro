@@ -1,0 +1,25 @@
+---
+import UrlForm from "@/urlmanage/components/UrlForm.astro";
+---
+
+<main class="relative z-10 max-w-5xl mx-auto px-6 pt-15 pb-32 text-center">
+    
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-8">
+        <span class="text-brand text-sm text-purple-300">◆</span>
+        <span class="text-sm text-slate-300">Acorta URLs en segundos</span>
+    </div>
+
+    <div>
+        <h1 class="text-5xl md:text-6xl mb-6 bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent font-bold ">
+            Acorta tus URLs de forma rápida y sencilla
+        </h1>
+        <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10">
+            Introduce tu URL en el campo de abajo y pulsa el botón para acortar
+            la URL.
+        </p>
+
+        <UrlForm />
+
+        <div id="result" class="mt-4"></div>
+    </div>
+</main>
