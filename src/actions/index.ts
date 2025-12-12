@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 
 export const server = {
     setShortUrl: defineAction({
+        accept: 'form',
         input: z.object({
             url : z.string().url('URL inválida'),
         }),
