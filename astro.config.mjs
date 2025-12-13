@@ -9,6 +9,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://short.emaconor.site',
+  base: '/',
+
   vite: {
     plugins: [tailwindcss()],
     resolve: {
