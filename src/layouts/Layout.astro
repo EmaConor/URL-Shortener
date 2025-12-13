@@ -1,15 +1,21 @@
 ---
 import '@/styles/global.css'
+
+interface Props {
+	title: string;
+}
+const { title } = Astro.props;
 ---     
 
 <!doctype html>
 <html lang="en">
 	<head>
+		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6914133666246362" crossorigin="anonymous"></script>
 		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>URL Shortener</title>
+		<title>{title}</title>
 		<meta name="description" content="URL Shortener">
 		<meta name="keywords" content="URL Shortener, URL, Shortener, URL Shortener App, URL Shortener Service">
 		<meta name="author" content=".Ema¿">
