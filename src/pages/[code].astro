@@ -1,6 +1,5 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-import Ad from '@/components/Ad.astro';
 import { db } from '@/db/index';
 import { short_url } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -48,23 +47,10 @@ const urlDestino  = result[0].full_url;
 
     <main class="relative z-10 max-w-6xl mx-auto px-6 pt-8 sm:pt-15 pb-32 text-center">
         <div class="shadow-xl/10 w-full bg-[#1e293b] rounded-xl border-2 border-dashed border-white/10 h-110  items-center justify-center mb-8 relative overflow-hidden group">
-        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10"></div>
-        <div class="w-full min-h-[250px]  items-center justify-center">
-            <Ad />
-        </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-        <div class="shadow-xl/10 bg-gradient-to-br from-purple-500/10 to-blue-500/10 bg-[#1e293b] rounded-xl h-70 border border-white/5  items-center justify-center">
-            <div class="w-full min-h-[200px] flex items-center justify-center">
-            <Ad />
-            </div>
-        </div>
-        <div class="shadow-xl/10 bg-[#1e293b] bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-xl h-70 border border-white/5  items-center justify-center">
-            <div class="w-full min-h-[200px] flex items-center justify-center">
-            <Ad />
-            </div>
-        </div>
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10"></div>
+                <div class="w-full min-h-[250px]  items-center justify-center">
+                
+                </div>
         </div>
     </main>
 </Layout>
