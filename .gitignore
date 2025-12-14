@@ -4,7 +4,6 @@ dist/
 # generated types
 .astro/
 
-
 ./drizzle
 
 # dependencies
@@ -25,3 +24,4 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+public/ads.txt

@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
-
+import Ad from '@/components/Ad.astro';
 import { db } from '@/db/index';
 import { short_url } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -32,35 +32,39 @@ const urlDestino  = result[0].full_url;
 <Layout title="Espera unos segundos...">
     <header class="relative z-10 border-b border-white/5 backdrop-blur-xl shadow-lg">
         <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <a href="/" class="text-xl">LinkMaster</a>
-            </div>
-            <div class="flex items-center gap-3">
-                <button id="btn-wait" class="px-4 py-2 rounded-md bg-slate-700 text-slate-300 cursor-not-allowed font-mono">
-                    Espera <span id="countdown">5</span>s
-                </button>
-                
-                <a id="btn-continue" href={urlDestino} class="hidden items-center px-5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all shadow-lg shadow-purple-500/25">
-                    Continuar<i class="pl-2 ti ti-arrow-right"></i>
-                </a>
-            </div>
+        <div class="flex items-center gap-2">
+            <a href="/" class="text-xl">LinkMaster</a>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="btn-wait" class="px-4 py-2 rounded-md bg-slate-700 text-slate-300 cursor-not-allowed font-mono">
+            Espera <span id="countdown">5</span>s
+            </button>
+            <a id="btn-continue" href={urlDestino} class="hidden items-center px-5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all shadow-lg shadow-purple-500/25">
+            Continuar<i class="pl-2 ti ti-arrow-right"></i>
+            </a>
+        </div>
         </div>
     </header>
+
     <main class="relative z-10 max-w-6xl mx-auto px-6 pt-8 sm:pt-15 pb-32 text-center">
-        <main class="shadow-xl/10 w-full bg-[#1e293b] rounded-xl border-2 border-dashed border-white/10 h-110 flex items-center justify-center mb-8 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10"></div>
-            <span class="text-slate-500 font-bold text-xl group-hover:scale-110 transition-transform">
-                ESPACIO PARA TU ANUNCIO
-            </span>
-        </main>
+        <div class="shadow-xl/10 w-full bg-[#1e293b] rounded-xl border-2 border-dashed border-white/10 h-110  items-center justify-center mb-8 relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10"></div>
+        <div class="w-full min-h-[250px]  items-center justify-center">
+            <Ad />
+        </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
-            <div class="shadow-xl/10 bg-gradient-to-br from-purple-500/10 to-blue-500/10 inset-0 bg-[#1e293b] rounded-xl h-20 sm:h-70 border border-white/5 flex items-center justify-center">
-                <span class="text-slate-600">Anuncio Cuadrado 1</span>
+        <div class="shadow-xl/10 bg-gradient-to-br from-purple-500/10 to-blue-500/10 bg-[#1e293b] rounded-xl h-70 border border-white/5  items-center justify-center">
+            <div class="w-full min-h-[200px] flex items-center justify-center">
+            <Ad />
             </div>
-            <div class="shadow-xl/10 bg-[#1e293b] inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-xl h-20 sm:h-70 border border-white/5 flex items-center justify-center">
-                <span class="text-slate-600">Anuncio Cuadrado 2</span>
+        </div>
+        <div class="shadow-xl/10 bg-[#1e293b] bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-xl h-70 border border-white/5  items-center justify-center">
+            <div class="w-full min-h-[200px] flex items-center justify-center">
+            <Ad />
             </div>
+        </div>
         </div>
     </main>
 </Layout>
