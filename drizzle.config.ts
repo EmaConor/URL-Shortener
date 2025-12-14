@@ -5,7 +5,8 @@ export default defineConfig({
     schema: './src/db/schema.ts',
     out: './drizzle',
     dbCredentials: {
-        url: import.meta.env.DATABASE_URL!
+        url: import.meta.env.DATABASE_URL!,
+        ssl: true,
     },
     verbose: true,
     strict: true,
