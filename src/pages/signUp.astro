@@ -1,0 +1,188 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import Window from '@/components/Window.astro'
+
+import { Email, Key, User } from '@/icons'
+import { auth } from "@/utils/auth"
+
+const session = await auth.api.getSession({
+    headers: Astro.request.headers
+})
+if (session){
+    return Astro.redirect('/dashboard')
+}
+---
+
+<Layout title="Registrarse">
+    <Window>
+        
+            <div class="px-0 sm:px-10">
+                <div class="bg-white/5 p-2 rounded-xl flex mb-10">
+                    <a href="/signIn" class="flex-1 flex items-center justify-center py-3 text-base font-medium rounded-lg text-gray-500 hover:text-white transition-all" >
+                        Iniciar Sesión
+                    </a>
+                    <a transition:name="bottonSelect" class="flex-1 cursor-pointer flex items-center justify-center py-3 text-base font-medium rounded-lg bg-white/10 shadow-sm transition-all">
+                        Registrarse
+                    </a>
+                </div>
+
+                <form id="sign-up-form" method="post" action="/api/login" class="space-y-5">
+                    <div class="group relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <User class="text-gray-400 text-2xl" />
+                        </div>
+                        <input 
+                        id="name"
+                        name="name"
+                        type="text"
+                        required
+                        autocomplete="name"
+                        placeholder="Enter your name*"
+                        class="mr-4 bg-[#1E293B] mb-3 sm:mb-0 rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
+                        />
+                    </div>
+
+                    <div class="group relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Email class="text-gray-400 text-2xl" />
+                        </div>
+                        <input 
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        autocomplete="email"
+                        placeholder="Enter your email*"
+                        class="mr-4 bg-[#1E293B] mb-3 sm:mb-0 rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
+                        />
+                    </div>
+
+                    <div class="group relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Key class="text-gray-400 text-2xl" />
+                        </div>
+                        <input 
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        autocomplete="current-password"
+                        placeholder="Enter your password*"
+                        class="mr-4 bg-[#1E293B]  rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
+                        />
+                    </div>
+
+                    <div class="group relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Key class="text-gray-400 text-2xl" />
+                        </div>
+                        <input 
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        required
+                        placeholder="Enter your confirm password*"
+                        class="mr-4 bg-[#1E293B]  rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
+                        />
+                    </div>
+
+                    <button 
+                        id="btn-submit"
+                        type="submit"
+                        class="mt-6 w-full bg-linear-to-r hover:scale-105 from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-purple-500/25w-full py-4 rounded-xl transition-all shadow-lg shadow-purple-500/25 text-lg"
+                    >
+                        Crear Cuenta
+                    </button>
+                    <p id="error-msg" class="text-red-500 text-center text-sm hidden"></p>
+                </form>
+                <div class="relative mt-8 mb-6">
+                    <div aria-hidden="true" class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white/5  text-gray-500 ">O continuar con</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-center gap-6">
+                <button aria-label="Sign in with Google" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors group">
+            </div>
+    </Window>
+</Layout>
+
+<script>
+    import { actions , isInputError } from 'astro:actions'
+
+    const signUpForm = document.getElementById('sign-up-form') as HTMLFormElement
+    const errorMsg = document.getElementById('error-msg') as HTMLParagraphElement;
+    const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement;
+
+
+    signUpForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const formData = new FormData(signUpForm)
+        if(formData){
+            await signUpClient(formData)
+        }
+    })
+
+
+    async function signUpClient(formData: FormData) {
+            errorMsg.classList.add('hidden');
+            errorMsg.innerText = '';
+            btnSubmit.disabled = true;
+            const originalBtnText = btnSubmit.innerText;
+            btnSubmit.innerText = "Registrando...";
+            
+        try {
+            
+            const name = formData.get('name') as string
+            const email = formData.get('email') as string
+            const password = formData.get('password') as string
+            const confirmPassword = formData.get('confirmPassword') as string
+
+            if (password !== confirmPassword) {
+                throw new Error('Las contraseñas no coinciden')
+            } 
+
+            const { data, error } = await actions.signUpClient({ name, email, password })
+
+            if (error) {
+                let message = "Ocurrió un error desconocido.";
+                const actionError = error as {
+                    fields?: Record<string, string[]>;
+                    issues?: { message: string }[];
+                    message?: string;
+                };
+
+                if (actionError.fields) {
+                    if (actionError.fields.email) {
+                    errorMsg.innerText = actionError.fields.email.join("\n");
+                    } else if (actionError.fields.password) {
+                    errorMsg.innerText = actionError.fields.password.join("\n");
+                    } else if (actionError.fields.name) {
+                    errorMsg.innerText = actionError.fields.name.join("\n");
+                    }
+                }
+                else {
+                    message = actionError.message || "Error desconocido en el servidor";
+                    errorMsg.innerText = message;
+                }
+                errorMsg.classList.remove("hidden");
+                return;
+            }
+
+            if (data?.success) {
+                window.location.href = "/dashboard"; 
+            }
+
+        } catch (err: any) {
+            errorMsg.innerText = err.message || "Error en la solicitud";
+            errorMsg.classList.remove("hidden");
+        } finally {
+            if (btnSubmit.innerText !== "Registrando...") return; // Si ya redirigimos, no importa
+            btnSubmit.disabled = false;
+            btnSubmit.innerText = "Crear Cuenta";
+        }
+    }
+</script>
