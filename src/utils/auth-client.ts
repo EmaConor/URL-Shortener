@@ -1,6 +1,5 @@
-import { createAuthClient } from "better-auth/client"
+import { createAuthClient } from 'better-auth/client'
 
 export const authClient = createAuthClient({
-    /** The base URL of the server (optional if you're using the same domain) */
-    baseURL: import.meta.env.BETTER_AUTH_URL
+  baseURL: import.meta.env.PUBLIC_BETTER_AUTH_URL || "http://localhost:4321",
 })

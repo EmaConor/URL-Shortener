@@ -1,88 +1,152 @@
 ---
-import Layout from '@/layouts/Layout.astro';
+import Layout from '@/layouts/Layout.astro'
 import Window from '@/components/Window.astro'
 
-import { Email, Key } from '@/icons';
+import { Email, Key } from '@/icons'
 
-import { auth } from "@/utils/auth"
-
-const session = await auth.api.getSession({
-    headers: Astro.request.headers
-})
-if (session){
-    return Astro.redirect('/dashboard')
-}
+import { auth } from '@/utils/auth'
+import LoginGitHubButton from '@/components/ui/LoginGitHubButton.astro'
 ---
 
 <Layout title="Iniciar Sesión">
-    <Window>
-        
-            <div class="px-0 sm:px-10">
-                <div class="bg-white/5 p-2 rounded-xl flex mb-10">
-                    <a transition:name="bottonSelect" class="flex-1 cursor-pointer flex items-center justify-center py-3 text-base font-medium rounded-lg bg-white/10 shadow-sm transition-all">
-                        Iniciar Sesión
-                    </a>
-                    <a href="/signUp" class="flex-1 flex items-center justify-center py-3 text-base font-medium rounded-lg text-gray-500 hover:text-white transition-all">
-                        Registrarse
-                    </a>
-                </div>
+  <Window>
+    <div class="px-0 sm:px-10">
+      <div class="mb-10 flex rounded-xl bg-white/5 p-2">
+        <a
+          transition:name="bottonSelect"
+          class="flex flex-1 cursor-pointer items-center justify-center rounded-lg bg-white/10 py-3 text-base font-medium shadow-sm transition-all"
+        >
+          Iniciar Sesión
+        </a>
+        <a
+          href="/signUp"
+          class="flex flex-1 items-center justify-center rounded-lg py-3 text-base font-medium text-gray-500 transition-all hover:text-white"
+        >
+          Registrarse
+        </a>
+      </div>
 
-                <form id="sign-in-form" method="post" action="/api/login" class="space-y-5">
+      <form id="sign-in-form" class="space-y-5">
+        <div class="group relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Email class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="Enter your email*"
+            class="mr-4 mb-3 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80 sm:mb-0"
+          />
+        </div>
 
-                    <div class="group relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Email class="text-gray-400 text-2xl" />
-                        </div>
-                        <input 
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        autocomplete="email"
-                        placeholder="Enter your email*"
-                        class="mr-4 bg-[#1E293B] mb-3 sm:mb-0 rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
-                        />
-                    </div>
+        <div class="group relative">
+          <label for="password" class="sr-only">Password</label>
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Key class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            placeholder="Enter your password*"
+            class="mr-4 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80"
+          />
+        </div>
 
-                    <div class="group relative">
-                        <label for="password" class="sr-only">Password</label>
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <Key class="text-gray-400 text-2xl" />
-                        </div>
-                        <input 
-                        id="password"
-                        name="password"
-                        type="password"
-                        required
-                        autocomplete="current-password"
-                        placeholder="Enter your password*"
-                        class="mr-4 bg-[#1E293B]  rounded-xl px-4 w-full text-slate-300 outline-none block pl-12 pr-12 py-4  border border-gray-700/50 text-base placeholder-gray-400 focus:ring-1 focus:ring-gray-700/80 transition-all shadow-sm"
-                        />
-                    </div>
+        <div class="flex justify-end">
+          <a
+            class="hover:text-primary text-sm text-gray-400 transition-colors"
+            href="/forgotPassword"
+          >
+            ¿Contraseña olvidada?
+          </a>
+        </div>
 
-                    <div class="flex justify-end">
-                        <a class="text-sm text-gray-400 hover:text-primary transition-colors" href="/forgotPassword">
-                        ¿Contraseña olvidada?
-                        </a>
-                    </div>
+        <p
+          id="signin-error"
+          class="hidden animate-pulse rounded-lg border border-red-500/20 bg-red-500/10 p-2 text-center text-sm text-red-400"
+        >
+        </p>
 
-                    <button 
-                        type="submit"
-                        class="w-full bg-linear-to-r hover:scale-105 from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 shadow-purple-500/25w-full py-4 rounded-xl transition-all shadow-lg shadow-purple-500/25 text-lg"
-                    >
-                        Continue
-                    </button>
-                </form>
-                <div class="relative mt-8 mb-6">
-                    <div aria-hidden="true" class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
-                    </div>
-                    <div class="relative flex justify-center text-sm">
-                        <span class="px-2 bg-white/5  text-gray-500 ">O continuar con</span>
-                    </div>
-                </div>
-                <div class="flex justify-center gap-6">
-                <button aria-label="Sign in with Google" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors group">
-            </div>
-    </Window>
-</Layout>
+        <button
+          id="btn-signin"
+          type="submit"
+          class="shadow-purple-500/25w-full w-full rounded-xl bg-linear-to-r from-purple-500 to-blue-500 py-4 text-lg shadow-lg shadow-purple-500/25 transition-all hover:scale-105 hover:from-purple-600 hover:to-blue-600"
+        >
+          Continue
+        </button>
+      </form>
+      <div class="relative mt-8 mb-6">
+        <div aria-hidden="true" class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-white/5 px-2 text-gray-500">O continuar con</span>
+        </div>
+      </div>
+      <div class="flex justify-center gap-6">
+        <LoginGitHubButton classButton="group rounded-full p-2 transition-colors hover:bg-gray-100 dark:hover:bg-white/10" />
+      </div>
+    </div>
+
+    <script>
+      
+      window.addEventListener('pageshow', async () => {
+        const { data: session } = await authClient.getSession()
+        if (session) {
+          window.location.href = '/dashboard'
+        }
+      })
+
+      import { authClient } from '@/utils/auth-client'
+
+      const signInForm = document.getElementById('sign-in-form') as HTMLFormElement
+      const errorMsg = document.getElementById('signin-error') as HTMLParagraphElement
+      const btnSubmit = document.getElementById('btn-signin') as HTMLButtonElement
+
+      if (signInForm) {
+        signInForm.addEventListener('submit', async (e) => {
+          e.preventDefault()
+
+          errorMsg.classList.add('hidden')
+          errorMsg.innerText = ''
+          btnSubmit.disabled = true
+          const originalText = btnSubmit.innerText
+          btnSubmit.innerText = 'Verificando...'
+
+          const formData = new FormData(signInForm)
+          const email = formData.get('email') as string
+          const password = formData.get('password') as string
+
+          // 3. Llamada al Cliente
+          const { data, error } = await authClient.signIn.email({
+            email,
+            password,
+          })
+
+          if (error) {
+            // Manejo de Credenciales inválidas
+            btnSubmit.disabled = false
+            btnSubmit.innerText = originalText
+
+            // Mostrar error amigable
+            errorMsg.innerText =
+              error.status === 401
+                ? 'Correo o contraseña incorrectos'
+                : 'Email invalido'
+
+            errorMsg.classList.remove('hidden')
+          } else {
+            // Éxito: Redirigir
+            window.location.href = '/dashboard'
+          }
+        })
+      }
+    </script></Window
+  ></Layout
+>
