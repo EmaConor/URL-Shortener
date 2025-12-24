@@ -1,44 +1,58 @@
+---
+// 1. Obtenemos la sesión y el usuario desde el servidor (gracias a tu middleware)
+const { session, user } = Astro.locals
+import SignOutButton from '@/components/ui/SignOutButton.astro'
+import { SignOut } from '@/icons'
+
+// Generar inicial para el avatar (Ej: Ema -> E)
+const avatarInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'U'
+---
+
 <header
-    class="text-sm md:text-base lg:text-xl relative z-10 border-b border-white/5 backdrop-blur-xl shadow-lg"
+  class="relative z-10 border-b border-white/5 text-sm shadow-lg backdrop-blur-xl md:text-base lg:text-xl"
 >
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <a
-                transition:name="linkMaster"
-                href="/"
-                class="text-xl md:text-2xl lg:text-3xl">LinkMaster</a
-            >
-        </div>
-        <nav class="hidden md:flex items-center gap-8">
-            <a
-                href="#features"
-                class="text-slate-300 hover:text-white transition-colors"
-                >Características</a
-            >
-            <a
-                href="#pricing"
-                class="hidden text-slate-300 hover:text-white transition-colors"
-                >Precios</a
-            >
-            <a
-                href="#analytics"
-                class="text-slate-300 hover:text-white transition-colors"
-                >Analíticas</a
-            >
-        </nav>
-        <div class="flex items-center gap-3">
-            <a
-                href="/signIn"
-                class="px-4 py-2 text-slate-300 hover:text-white transition-colors"
-            >
-                Iniciar Sesión
-            </a>
-            <a
-                href="signUp"
-                class="px-5 py-2 rounded-xl bg-linear-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 transition-all shadow-lg shadow-purple-500/25"
-            >
-                Comenzar Gratis
-            </a>
-        </div>
+  <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+    <div class="flex items-center gap-2">
+      <a
+        transition:name="linkMaster"
+        href="/"
+        class="bg-linear-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent md:text-2xl lg:text-3xl"
+      >
+        LinkMaster
+      </a>
     </div>
+    <nav class="hidden items-center gap-8 md:flex">
+      <a href="#features" class="text-slate-300 transition-colors hover:text-white"
+        >Características</a
+      >
+      <a href="#pricing" class="hidden text-slate-300 transition-colors hover:text-white">Precios</a
+      >
+      <a href="#analytics" class="hidden text-slate-300 transition-colors hover:text-white"
+        >Analíticas</a
+      >
+    </nav>
+
+    {
+      session ? (
+        <div class="flex items-center gap-3">
+          <a href="/dashboard" class="px-0 sm:px-3 py-2 text-slate-300 transition-colors hover:text-white">
+            Dashboard
+          </a>
+          <SignOutButton text="Cerrar sesión" />
+        </div>
+      ) : (
+        <div class="flex items-center justify-center gap-3">
+          <a href="/signIn" class="px-0 sm:px-3 py-2 text-slate-300 transition-colors hover:text-white">
+            Iniciar Sesión
+          </a>
+          <a
+            href="/signUp"
+            class="rounded-xl bg-linear-to-r from-purple-500 to-blue-500 px-2 sm:px-5 py-2 font-medium shadow-lg shadow-purple-500/25 transition-all hover:from-purple-600 hover:to-blue-600"
+          >
+            Comenzar Gratis
+          </a>
+        </div>
+      )
+    }
+  </div>
 </header>

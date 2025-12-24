@@ -1,35 +1,34 @@
 ---
-import { ArroyBackUp } from '@/icons';
+import { ArroyBackUp } from '@/icons'
 ---
 
-<section 
-    transition:name="iosForm" 
-    class="min-h-screen overflow-auto flex flex-col items-center justify-center w-full px-6 py-12"
-    >
-        <div class="animate-pop max-w-2xl w-full rounded-2xl bg-white/5 border border-white/10 p-10 shadow-xl">
-            
-            <div class="flex justify-between items-center gap-3 mb-8">
-                <div class="flex items-center gap-2">
-                    <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    </div>
-                    <span class="text-base  text-slate-300">Bienvenido</span>
-                </div>
-                <div class="flex justify-end">
-                        <a class="text-sm text-gray-400 hover:text-primary transition-colors" href="/">
-                            <ArroyBackUp/>
-                        </a>
-                </div>
-            </div>
-
-            <p class="flex justify-center mb-6 text-slate-300 text-lg">
-            Hey, por favor ingresa tus datos aquí
-            </p>
-
-            <slot />
-            
+<section
+  transition:name="iosForm"
+  class="flex min-h-screen w-full flex-col items-center justify-center overflow-auto px-6 py-12"
+>
+  <div
+    class="animate-pop w-full max-w-2xl rounded-2xl border border-white/10 bg-white/5 p-10 shadow-xl"
+  >
+    <div class="mb-8 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <div class="flex gap-2">
+          <div class="h-3 w-3 rounded-full bg-red-500"></div>
+          <div class="h-3 w-3 rounded-full bg-yellow-500"></div>
+          <div class="h-3 w-3 rounded-full bg-green-500"></div>
         </div>
-        
+        <span class="text-base text-slate-300">Bienvenido</span>
+      </div>
+      <div class="flex justify-end">
+        <a class="hover:text-primary text-sm text-gray-400 transition-colors" href="/">
+          <ArroyBackUp />
+        </a>
+      </div>
+    </div>
+
+    <p class="mb-6 flex justify-center text-lg text-slate-300">
+      Hey, por favor ingresa tus datos aquí
+    </p>
+
+    <slot />
+  </div>
 </section>

@@ -1,0 +1,16 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import LinksPage from "@/components/LinksPage.astro"
+import SideBar from "@/components/SideBar.astro"
+---
+
+<Layout title="Bienvenido">
+  <div class="flex h-screen">
+    <aside class="w-64 shrink-0">
+      <SideBar />
+    </aside>
+    <main class="flex-1 overflow-y-auto">
+      <LinksPage/>
+    </main>
+  </div>
+</Layout>

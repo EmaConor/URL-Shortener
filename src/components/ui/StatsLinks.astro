@@ -1,0 +1,30 @@
+---
+import { Filter, Search, SignOut } from '@/icons'
+
+import { db } from '@/db'
+import { shortUrl, tag } from '@/db/schema'
+import { type SQL, eq, and, like, or } from 'drizzle-orm'
+const { user } = Astro.locals
+if (!user) throw new Error('User is required')
+
+const conditions = [eq(shortUrl.userId, user.id)]
+
+const searchParam = Astro.url.searchParams.get('q') || ''
+const filterParam = Astro.url.searchParams.get('filter') || 'all'
+
+if (searchParam){
+  const searchFilter = or(
+    like(shortUrl.fullUrl, `%${searchParam}%`), 
+    like(shortUrl.code, `%${searchParam}%`)
+  );
+  if (searchFilter) {
+    conditions.push(searchFilter);
+  }
+}
+
+const links = await db.select().from(shortUrl).where(and(...conditions))
+
+const activeLinks = links.filter((link) => link.isActive).length
+const tags = await db.select().from(tag).where(eq(tag.userId, user.id))
+---
+

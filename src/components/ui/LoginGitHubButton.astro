@@ -1,0 +1,33 @@
+---
+import { GitHub } from '@/icons'
+
+const { classButton = '' } = Astro.props
+---
+
+<button id="btn-github" class=`transition-transform ${classButton}`>
+  <GitHub />
+</button>
+
+<script>
+  // Importamos el cliente que creaste en el paso anterior
+  import { authClient } from '@/utils/auth-client'
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('btn-github')
+
+    if (btn) {
+      btn.addEventListener('click', async () => {
+        btn.setAttribute('disabled', 'true')
+
+        try {
+          await authClient.signIn.social({
+            provider: 'github',
+            callbackURL: '/dashboard',
+          })
+        } catch (error) {
+          console.error('Error al iniciar sesión', error)
+          btn.removeAttribute('disabled')
+        }
+      })
+    }
+  })
+</script>

@@ -1,5 +1,8 @@
 ---
 import UrlForm from "@/components/UrlForm.astro";
+import UrlFormUser from "@/components/UrlFormUser.astro";
+
+const { session, user } = Astro.locals
 ---
 
 <main class="relative z-10 max-w-5xl mx-auto px-6 pt-10 md:pt-20 lg:pt-30 pb-20 md:pb-40 text-center">
@@ -18,8 +21,14 @@ import UrlForm from "@/components/UrlForm.astro";
             la URL.
         </p>
 
-        <UrlForm />
-
+        {
+          session ? (
+            <UrlFormUser/>
+          ) : (
+            <UrlForm />
+          )
+        }
+        
         <div id="result" class="mt-4"></div>
     </div>
 </main>

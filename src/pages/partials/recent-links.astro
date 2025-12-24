@@ -1,0 +1,8 @@
+---
+import LinksTable from "@/components/LinksTable.astro"; 
+
+// Esto le dice a Astro que no envíe el <!DOCTYPE html> completo, solo el componente
+export const partial = true; 
+---
+<h1 class="mt-10 mb-4 text-2xl text-slate-400">Links recientes (5)</h1>
+<LinksTable limit={5} />

@@ -1,0 +1,47 @@
+---
+import { SignOut } from '@/icons'
+
+const { 
+  classButton = "", 
+  classIcon = "group-hover:-translate-x-1", // Tamaño default del icono
+  text, 
+  ...rest 
+} = Astro.props
+---
+
+<button
+  id="btn-logout"
+  {...rest}
+  class={`cursor-pointer group flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 font-medium text-red-400 shadow-lg shadow-red-500/15 transition-all duration-300 hover:bg-red-500 hover:text-white ${classButton}`}
+>
+  <SignOut class=`transition-transform ${classIcon}` />
+  <span id="btn-text">{text}</span>
+</button>
+
+<script>
+  import { authClient } from '@/utils/auth-client'
+
+  document.addEventListener('astro:page-load', () => {
+    const btnLogout = document.getElementById('btn-logout')
+    const btnText  = document.getElementById('btn-text')
+
+    if (btnLogout && btnText) {
+      btnLogout.addEventListener('click', async () => {
+        try {
+          btnText.innerText = 'Saliendo...'
+
+          await authClient.signOut({
+            fetchOptions: {
+              onSuccess: () => {
+                window.location.href = '/' 
+              },
+            },
+          })
+        } catch (error) {
+          console.error('Error al cerrar sesión', error)
+          btnText.innerText = 'Error'
+        }
+      })
+    }
+  })
+</script>
