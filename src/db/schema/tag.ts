@@ -14,7 +14,7 @@ import urlTag from './urlTag'
 const tag = pgTable('tag', {
     id: uuid('id').defaultRandom().primaryKey(),
     userId: text("user_id").notNull().references(() => user.id).notNull(),
-    name: varchar('name').notNull(),
+    name: varchar('name').notNull().unique(),
     color: text('color'),
     createdAt: timestamp('created_at').notNull().defaultNow(),
 }, (table) => {

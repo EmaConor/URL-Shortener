@@ -20,6 +20,7 @@ const user = pgTable('user', {
     createdAt: timestamp('created_at').notNull().defaultNow(),
     updatedAt: timestamp('updated_at').notNull().defaultNow(),
     isActive: boolean('is_active').notNull().default(true),
+    image: text("image"),
 }, (table) => {
     return {
         emailIdx: index('idx_user_email').on(table.email),

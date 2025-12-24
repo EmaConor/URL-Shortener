@@ -12,7 +12,7 @@ export default async function seed(db: db) {
       throw new Error("No free plan");
     }
 
-    const demoEmail = 'demo@publico.com';
+    const demoEmail = process.env.EMAIL_DEMO!
     const demoId = crypto.randomUUID();
     
     const result = await db.insert(user).values({

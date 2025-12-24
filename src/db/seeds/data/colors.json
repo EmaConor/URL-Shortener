@@ -1,0 +1,11 @@
+[
+  { "name": "Rojo", "hex": "#EF4444" },
+  { "name": "Naranja", "hex": "#F97316" },
+  { "name": "Amarillo", "hex": "#FACC15" },
+  { "name": "Verde", "hex": "#22C55E" },
+  { "name": "Verde azulado", "hex": "#14B8A6" },
+  { "name": "Azul", "hex": "#3B82F6" },
+  { "name": "Indigo", "hex": "#6366F1" },
+  { "name": "Purple", "hex": "#A855F7" },
+  { "name": "Pink", "hex": "#EC4899" }
+]
