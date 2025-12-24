@@ -1,55 +1,72 @@
 ---
 import '@/styles/global.css'
+import { ClientRouter } from 'astro:transitions'
 
 interface Props {
-	title: string;
+  title: string
 }
-const { title } = Astro.props;
----     
+const { title } = Astro.props
+---
 
 <!doctype html>
 <html lang="es">
-	<head>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<title>{title}</title>
-		<meta name="description" content="URL Shortener">
-		<meta name="keywords" content="URL Shortener, URL, Shortener, URL Shortener App, URL Shortener Service">
-		<meta name="author" content=".Ema¿">
-	</head>
-	<body class="min-h-screen relative">
-		<div class="absolute inset-0 overflow-hidden pointer-events-none">
-			<div class="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-[100px] animate-pulse"></div>
-			<div class="absolute bottom-4 right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
-			<div class="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-		</div>
-		
-		<slot />
-	</body>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+    />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content="URL Shortener" />
+    <meta
+      name="keywords"
+      content="URL Shortener, URL, Shortener, URL Shortener App, URL Shortener Service"
+    />
+    <meta name="author" content=".Ema¿" />
+    <ClientRouter />
+  </head><body class="relative min-h-screen items-center justify-center">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div
+        class="absolute top-20 left-10 h-72 w-72 animate-pulse rounded-full bg-purple-500/10 blur-[100px]"
+      >
+      </div>
+      <div
+        class="absolute right-20 bottom-4 h-96 w-96 animate-pulse rounded-full bg-blue-500/10 blur-[120px]"
+        style="animation-delay: 1s;"
+      >
+      </div>
+      <div
+        class="absolute top-1/2 left-1/2 h-80 w-80 animate-pulse rounded-full bg-cyan-500/5 blur-[100px]"
+        style="animation-delay: 2s;"
+      >
+      </div>
+    </div>
+
+    <slot />
+  </body>
 </html>
 
 <style>
+  /* Animaciones */
 
-/* Animaciones */
-@keyframes lock-reveal {
+  @keyframes lock-reveal {
     0% {
-        mask-size: 50px;
+      mask-size: 50px;
     }
     100% {
-        mask-size: 2000vh;
+      mask-size: 2000vh;
     }
-}
+  }
 
-@keyframes lock-reveal {
-0% {
-    mask-size: 50px;
-}
+  @keyframes lock-reveal {
+    0% {
+      mask-size: 50px;
+    }
 
-100% {
-    mask-size: 2000vh;
-}
-
-}
+    100% {
+      mask-size: 2000vh;
+    }
+  }
 </style>

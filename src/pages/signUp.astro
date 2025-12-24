@@ -1,0 +1,203 @@
+---
+import Layout from '@/layouts/Layout.astro'
+import Window from '@/components/Window.astro'
+
+import { Email, Key, User } from '@/icons'
+import { auth } from '@/utils/auth'
+import LoginGitHubButton from '@/components/ui/LoginGitHubButton.astro'
+---
+
+<Layout title="Registrarse">
+  <Window>
+    <div class="px-0 sm:px-10">
+      <div class="mb-10 flex rounded-xl bg-white/5 p-2">
+        <a
+          href="/signIn"
+          class="flex flex-1 items-center justify-center rounded-lg py-3 text-base font-medium text-gray-500 transition-all hover:text-white"
+        >
+          Iniciar Sesión
+        </a>
+        <a
+          transition:name="bottonSelect"
+          class="flex flex-1 cursor-pointer items-center justify-center rounded-lg bg-white/10 py-3 text-base font-medium shadow-sm transition-all"
+        >
+          Registrarse
+        </a>
+      </div>
+
+      <form id="sign-up-form" method="post" action="/api/login" class="space-y-5">
+        <div class="group relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <User class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="name"
+            name="name"
+            type="text"
+            required
+            autocomplete="name"
+            placeholder="Enter your name*"
+            class="mr-4 mb-3 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80 sm:mb-0"
+          />
+        </div>
+
+        <div class="group relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Email class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autocomplete="email"
+            placeholder="Enter your email*"
+            class="mr-4 mb-3 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80 sm:mb-0"
+          />
+        </div>
+
+        <div class="group relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Key class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+            placeholder="Enter your password*"
+            class="mr-4 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80"
+          />
+        </div>
+
+        <div class="group relative">
+          <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <Key class="text-2xl text-gray-400" />
+          </div>
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            required
+            placeholder="Enter your confirm password*"
+            class="mr-4 block w-full rounded-xl border border-gray-700/50 bg-[#1E293B] px-4 py-4 pr-12 pl-12 text-base text-slate-300 placeholder-gray-400 shadow-sm transition-all outline-none focus:ring-1 focus:ring-gray-700/80"
+          />
+        </div>
+
+        <p
+          id="error-msg"
+          class="hidden animate-pulse rounded-lg border border-red-500/20 bg-red-500/10 p-2 text-center text-sm text-red-400"
+        >
+        </p>
+
+        <button
+          id="btn-submit"
+          type="submit"
+          class="shadow-purple-500/25w-full mt-6 w-full rounded-xl bg-linear-to-r from-purple-500 to-blue-500 py-4 text-lg shadow-lg shadow-purple-500/25 transition-all hover:scale-105 hover:from-purple-600 hover:to-blue-600"
+        >
+          Crear Cuenta
+        </button>
+      </form>
+      <div class="relative mt-8 mb-6">
+        <div aria-hidden="true" class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-200 dark:border-gray-700"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="bg-white/5 px-2 text-gray-500">O continuar con</span>
+        </div>
+      </div>
+
+      <div class="flex justify-center gap-6">
+        <LoginGitHubButton classButton="group rounded-full p-2 transition-colors hover:bg-gray-100 dark:hover:bg-white/10" />
+        </button>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener('pageshow', async () => {
+        const { data: session } = await authClient.getSession()
+        if (session) {
+          window.location.href = '/dashboard'
+        }
+      })
+
+      import { authClient } from '@/utils/auth-client'
+      import { signUpSchema } from '@/validations/auth'
+
+      const signUpForm = document.getElementById('sign-up-form') as HTMLFormElement
+      const errorMsg = document.getElementById('error-msg') as HTMLParagraphElement
+      const btnSubmit = document.getElementById('btn-submit') as HTMLButtonElement
+
+      signUpForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        const formData = new FormData(signUpForm)
+        const values = Object.fromEntries(formData)
+
+        try {
+          const isValid = await validation(values)
+          if (!isValid) return
+
+          await signUpClient(formData)
+        } catch (err) {
+          console.error(err)
+        }
+      })
+
+      function showError(msg: string | null) {
+        if (msg) {
+          errorMsg.innerText = msg
+          errorMsg.classList.remove('hidden')
+        } else {
+          errorMsg.classList.add('hidden')
+          errorMsg.innerText = ''
+        }
+      }
+
+      async function validation(values: Object) {
+        const validation = signUpSchema.safeParse(values)
+
+          if (!validation.success) {
+            const allErrors = validation.error.errors.map(err => err.message);
+            const messageList = allErrors.join("\n");
+            showError(messageList);
+            return false;
+          }
+
+        return true
+      }
+
+      async function signUpClient(formData: FormData) {
+        errorMsg.classList.add('hidden')
+        errorMsg.innerText = ''
+        btnSubmit.disabled = true
+        btnSubmit.innerText = 'Registrando...'
+
+        try {
+          const name = formData.get('name') as string
+          const email = formData.get('email') as string
+          const password = formData.get('password') as string
+
+          const { error } = await authClient.signUp.email({
+            email,
+            password,
+            name,
+            callbackURL: '/dashboard',
+          })
+
+          if (error) {
+            showError(error.message!)
+            btnSubmit.disabled = false
+            btnSubmit.innerText = 'Crear Cuenta'
+            return
+          }
+          window.location.href = `/dashboard`
+        } catch (err: any) {
+          errorMsg.innerText = err.message || 'Error en la solicitud'
+          errorMsg.classList.remove('hidden')
+        }
+      }
+    </script></Window
+  ></Layout
+>

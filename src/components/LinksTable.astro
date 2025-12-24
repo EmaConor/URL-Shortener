@@ -1,0 +1,522 @@
+---
+import { db } from '@/db'
+import { shortUrl, tag, urlTag } from '@/db/schema'
+import { eq, desc } from 'drizzle-orm'
+
+const { user } = Astro.locals
+if (!user) return (window.location.href = '/signIn')
+const DOMAIN = Astro.site?.host
+
+const { limit } = Astro.props
+
+let query = db
+  .select({
+    url: shortUrl,
+    tag: {
+      id: tag.id,
+      name: tag.name,
+      color: tag.color,
+    },
+  })
+  .from(shortUrl)
+  .leftJoin(urlTag, eq(shortUrl.id, urlTag.urlId))
+  .leftJoin(tag, eq(urlTag.tagId, tag.id))
+  .where(eq(shortUrl.userId, user.id))
+  .orderBy(desc(shortUrl.createdAt))
+  .$dynamic();
+
+if (limit) {
+  query = query.limit(limit)
+}
+
+const rows = await query
+
+// se agrupan las filas shortUrl con sus tags
+const urlsMap = new Map()
+rows.forEach((row) => {
+  if (!urlsMap.has(row.url.id)) {
+    urlsMap.set(row.url.id, { ...row.url, tags: [] })
+  }
+  if (row.tag && row.tag.id) {
+    urlsMap.get(row.url.id).tags.push(row.tag)
+  }
+})
+
+const urls = Array.from(urlsMap.values())
+const tags = await db.select().from(tag).where(eq(tag.userId, user.id))
+---
+
+<section>
+  <div class="overflow-x-auto touch-pan-x rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-slate-700/50">
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">URL Original</th>
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">Link acortado</th>
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">Estado</th>
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">Tag</th>
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">Tipo</th>
+          <th class="px-6 py-4 text-left text-sm text-slate-400 whitespace-nowra">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          urls.length === 0 ? (
+            <tr>
+              <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                <div class="flex flex-col items-center gap-2">
+                  <p>No has creado ningun enlace aun</p>
+                </div>
+              </td>
+            </tr>
+          ) : (
+            urls.map((url) => (
+              <tr class="border-b border-slate-700/30 transition-colors hover:bg-slate-800/70">
+                <td class="flex items-center px-6 py-4">
+                  <div>
+                    <a
+                      href={url.fullUrl}
+                      target="_blank"
+                      class="block truncate text-sm text-slate-300 transition-colors hover:text-purple-400"
+                    >
+                      {url.fullUrl}
+                    </a>
+                    <span class="text-xs text-slate-500">
+                      {new Date(url.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="rounded bg-purple-500/10 px-2 py-1 text-sm text-purple-300">
+                      /{url.code}
+                    </span>
+                    <button
+                      type="button"
+                      id="btn-copy"
+                      class="btn-copy rounded-md p-1 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+                      title="Copiar"
+                      data-url={`${DOMAIN}/${url.code}`}
+                    >
+                      <i class="ti ti-copy h-4 w-4 text-[20px] text-blue-300" />
+                    </button>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <label class="relative inline-flex cursor-pointer items-center">
+                      <input
+                        type="checkbox"
+                        class="peer btn-status sr-only"
+                        value={url.id}
+                        checked={url.isActive}
+                      />
+                      <div class="peer h-6 w-11 rounded-full bg-slate-700 peer-checked:bg-green-500 peer-focus:ring-2 peer-focus:ring-purple-500 peer-focus:outline-none after:absolute after:top-0.5 after:left-0.5 after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white" />
+
+                      <span class="status-text ml-2 text-xs font-medium text-slate-400">
+                        {url.isActive ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </label>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="flex gap-2">
+                    {url.tags.length > 0 ? (
+                      url.tags.map((tag: any) => (
+                        <span
+                          class="inline-flex items-center rounded border px-2 py-0.5 text-[10px] font-medium"
+                          style={{
+                            backgroundColor: `${tag.color}15`,
+                            color: tag.color,
+                            borderColor: `${tag.color}30`,
+                          }}
+                        >
+                          {tag.name}
+                        </span>
+                      ))
+                    ) : (
+                      <span class="text-xs text-slate-600 italic">Sin tags</span>
+                    )}
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex justify-center gap-2">
+                    {url.isProtected && (
+                      <div class="group relative" title="Protegido">
+                        <i class="ti ti-lock h-4 w-4 text-yellow-500" />
+                      </div>
+                    )}
+                    {url.isDirect && (
+                      <div class="group relative" title="Redirección directa">
+                        <i class="ti ti-direction-sign h-4 w-4 text-blue-400" />
+                      </div>
+                    )}
+                    {!url.isProtected && !url.isDirect && (
+                      <span class="text-xs text-slate-600">-</span>
+                    )}
+                  </div>
+                </td>
+
+                <td class="px-6 py-4">
+                  <div class="flex items-center justify-center gap-1">
+                    <a
+                      href={`/${url.code}`}
+                      target="_blank"
+                      class="rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-blue-400"
+                      title="Probar enlace"
+                    >
+                      <i class="ti ti-external-link h-4 w-4" />
+                    </a>
+
+                    <button
+                      class="btn-edit rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-yellow-400"
+                      title="Editar configuración"
+                      data-url-id={url.id}
+                      data-is-direct={url.isDirect.toString()}
+                      data-is-protected={url.isProtected.toString()}
+                      data-tags={JSON.stringify(url.tags.map((t: any) => t.id))}
+                    >
+                      <i class="ti ti-edit h-4 w-4" />
+                    </button>
+
+                    <button
+                      class="btn-delete rounded-lg p-2 text-slate-400 transition-colors hover:bg-white/10 hover:text-red-400"
+                      title="Eliminar"
+                      data-id={url.id}
+                    >
+                      <i class="ti ti-trash h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )
+        }
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<div id="edit-modal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div class="w-full max-w-md rounded-2xl border border-white/10 bg-[#0f172a] p-6 shadow-2xl animate-fade-in-up">
+        
+        <h2 class="mb-6 text-xl font-bold text-white flex items-center gap-2">
+          <i class="w-5 h-5 text-purple-400 ti ti-edit"></i> Editar Enlace
+        </h2>
+
+        <form id="edit-form" class="space-y-5">
+            <input type="hidden" name="urlId" id="edit-url-id">
+
+            <div class="flex items-center justify-between rounded-xl bg-white/5 p-3 border border-white/5">
+                <div class="flex flex-col">
+                    <span class="text-sm font-medium text-white">Redirección Directa</span>
+                    <span class="text-xs text-slate-400">Salta la página intermedia</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="isDirect" id="edit-is-direct" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+                </label>
+            </div>
+
+            <div class="space-y-3 rounded-xl bg-white/5 p-3 border border-white/5">
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium text-white">Protección</span>
+                        <span class="text-xs text-slate-400">Requerir contraseña</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="isProtected" id="edit-is-protected" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-400"></div>
+                    </label>
+                </div>
+                
+                <div id="edit-password-container" class="hidden pt-2 border-t border-white/10">
+                    <input 
+                        type="password" 
+                        name="password" 
+                        id="edit-password"
+                        placeholder="Nueva contraseña (déjalo vacío para mantener)" 
+                        class="w-full rounded-lg bg-black/20 border border-white/10 px-3 py-2 text-sm text-white focus:border-purple-500 outline-none"
+                    >
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-sm text-slate-400">Etiquetas (Tags)</label>
+                <div class="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 rounded-xl bg-white/5 border border-white/5 custom-scrollbar">
+                    {tags.map((t) => (
+                        <label class="flex items-center gap-2 cursor-pointer p-1 hover:bg-white/5 rounded">
+                            <input 
+                                type="checkbox" 
+                                name="tags" 
+                                value={t.id} 
+                                class="rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
+                            >
+                            <span class="text-xs text-slate-300" style={`color:${t.color}`}>{t.name}</span>
+                        </label>
+                    ))}
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-white/10">
+                <button type="button" id="close-edit-modal" class="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors">
+                    Cancelar
+                </button>
+                <button type="submit" id="save-edit-btn" class="px-4 py-2 rounded-lg bg-purple-500 hover:bg-purple-600 text-white text-sm font-medium shadow-lg shadow-purple-500/20 transition-all">
+                    Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+  import { actions, isInputError } from 'astro:actions'
+  import Swal from 'sweetalert2'
+
+  declare global {
+    interface Window {
+      initTableEvents: () => void;
+    }
+  }
+
+  window.initTableEvents = () => {
+    const btnCopy = document.querySelectorAll('.btn-copy')
+
+    btnCopy.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const button = btn as HTMLButtonElement
+        const url = button.getAttribute('data-url')
+        if (!url) return
+
+        try {
+          await navigator.clipboard.writeText(url)
+          const icon = button.querySelector('i')
+          if (icon) {
+            const originalClass = icon.className
+            icon.className = 'w-7 text-[20px] text-blue-400 ti ti-copy-check'
+            setTimeout(() => {
+              icon.className = originalClass
+            }, 2000)
+          }
+        } catch (err) {
+          console.error('Error al copiar', err)
+        }
+      })
+    })
+
+    const btnStatus = document.querySelectorAll('.btn-status')
+
+    btnStatus.forEach((btn) => {
+      btn.addEventListener('change', async (e) => {
+        const checkbox = e.target as HTMLInputElement
+        const urlId = checkbox.value
+        const newStatus = checkbox.checked
+
+        const label = checkbox.closest('label')
+        const statusText = label?.querySelector('.status-text')
+
+        try {
+          const { data, error } = await actions.setUrlStatus({
+            urlId: urlId,
+            isActive: newStatus,
+          })
+
+          if (error) {
+            checkbox.checked = !newStatus
+            alert('Error al cambiar el estado')
+            if (statusText) statusText.textContent = !newStatus ? 'Activo' : 'Inactivo'
+            return
+          }
+
+          window.location.reload(); 
+
+        } catch (error) {
+          console.error(error)
+          checkbox.checked = !newStatus
+        }
+      })
+    })
+
+    const btnDelete = document.querySelectorAll('.btn-delete')
+
+    btnDelete.forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const button = btn as HTMLButtonElement
+        const urlId = button.getAttribute('data-id')
+        if (!urlId) return
+
+        const result = await Swal.fire({
+          title: '¿Estás seguro?',
+          text: 'No podrás revertir esta acción.',
+          icon: 'warning',
+          background: '#1e293b',
+          color: '#fff',
+          showCancelButton: true,
+          confirmButtonColor: 'oklch(71.4% 0.203 305.504)',
+          cancelButtonColor: '#3b82f6',
+          confirmButtonText: 'Sí, eliminar',
+          cancelButtonText: 'Cancelar',
+        })
+
+        if (result.isConfirmed) {
+          try {
+            const { data, error } = await actions.deleteUrl({ urlId })
+
+            if (error) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+                background: '#1e293b',
+                color: '#fff',
+              })
+              return
+            }
+
+            window.location.reload(); 
+
+            Swal.fire({
+              title: '¡Eliminado!',
+              text: 'El enlace ha sido eliminado.',
+              icon: 'success',
+              background: '#1e293b',
+              color: '#fff',
+              timer: 1500,
+              showConfirmButton: false,
+            })
+          } catch (error) {}
+        }
+      })
+    })
+
+    const editModal = document.getElementById('edit-modal');
+    const editForm = document.getElementById('edit-form') as HTMLFormElement;
+    const closeBtn = document.getElementById('close-edit-modal');
+    const saveBtn = document.getElementById('save-edit-btn');
+
+    const urlIdInput = document.getElementById('edit-url-id') as HTMLInputElement;
+    const isDirectInput = document.getElementById('edit-is-direct') as HTMLInputElement;
+    const isProtectedInput = document.getElementById('edit-is-protected') as HTMLInputElement;
+    const passwordInput = document.getElementById('edit-password') as HTMLInputElement;
+    const passContainer = document.getElementById('edit-password-container');
+    const tagCheckboxes = document.querySelectorAll('input[name="tags"]') as NodeListOf<HTMLInputElement>;
+
+    // Si se activa "Directo" se desactiva "Protegido"
+    isDirectInput.addEventListener('change', (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        
+        if (checked) {
+            // Desmarcamos protegido visual y lógicamente
+            isProtectedInput.checked = false;
+            // Ocultamos el campo de contraseña
+            passContainer?.classList.add('hidden');
+            passwordInput.value = '';
+        }
+    });
+
+    // Si se activa "Protegido" se desactiva "Directo"
+    isProtectedInput.addEventListener('change', (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        
+        // Mostrar/Ocultar input de contraseña
+        passContainer?.classList.toggle('hidden', !checked);
+
+        if (checked) {
+            // Desmarcamos directo
+            isDirectInput.checked = false;
+        } else {
+            // Si desmarcamos protegido, limpiamos el input password
+            passwordInput.value = '';
+        }
+    });
+
+    const editBtns = document.querySelectorAll('.btn-edit');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const button = btn as HTMLButtonElement;
+            
+            // Llenar datos básicos
+            urlIdInput.value = button.getAttribute('data-url-id') || '';
+            isDirectInput.checked = button.getAttribute('data-is-direct') === 'true';
+            
+            // Lógica Protección
+            const isProtected = button.getAttribute('data-is-protected') === 'true';
+            isProtectedInput.checked = isProtected;
+            passContainer?.classList.toggle('hidden', !isProtected);
+            passwordInput.value = ''; // Siempre limpio por seguridad
+
+            // Lógica Tags (Marcar los que ya tiene)
+            const currentTagIds = JSON.parse(button.getAttribute('data-tags') || '[]');
+            tagCheckboxes.forEach(cb => {
+                cb.checked = currentTagIds.includes(cb.value);
+            });
+
+            // Mostrar Modal
+            editModal?.classList.remove('hidden');
+        });
+    });
+
+    // 2. LOGICA VISUAL PASSWORD
+    isProtectedInput.addEventListener('change', (e) => {
+        const checked = (e.target as HTMLInputElement).checked;
+        passContainer?.classList.toggle('hidden', !checked);
+        if (!checked) passwordInput.value = '';
+    });
+
+    // 3. CERRAR MODAL
+    closeBtn?.addEventListener('click', () => {
+        editModal?.classList.add('hidden');
+    });
+
+    // 4. GUARDAR CAMBIOS
+    editForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        saveBtn!.innerText = "Guardando...";
+        saveBtn!.setAttribute('disabled', 'true');
+
+        // Recolectar Tags seleccionados
+        const selectedTags: string[] = [];
+        tagCheckboxes.forEach(cb => {
+            if (cb.checked) selectedTags.push(cb.value);
+        });
+
+        const formData = {
+            urlId: urlIdInput.value,
+            isDirect: isDirectInput.checked,
+            isProtected: isProtectedInput.checked,
+            password: passwordInput.value,
+            tags: selectedTags
+        };
+
+        try {
+            const { error } = await actions.updateUrl(formData);
+            console.log(error)
+            if (error) {
+                alert("Error: " + error.message);
+                saveBtn!.innerText = "Guardar Cambios";
+                saveBtn!.removeAttribute('disabled');
+                return;
+            }
+
+            // Éxito: Recargar para ver cambios (o actualizar DOM manualmente si eres pro)
+            window.location.reload(); 
+
+        } catch (err) {
+            console.error(err);
+            alert("Error inesperado");
+            saveBtn!.innerText = "Guardar Cambios";
+            saveBtn!.removeAttribute('disabled');
+        }
+    });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    window.initTableEvents();
+  })
+</script>

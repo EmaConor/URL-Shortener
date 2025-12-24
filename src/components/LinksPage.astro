@@ -1,0 +1,97 @@
+---
+import { Filter, Search, SignOut } from '@/icons'
+
+import { db } from '@/db'
+import { shortUrl, tag } from '@/db/schema'
+import { type SQL, eq, and, like, or } from 'drizzle-orm'
+import LinksTable from './LinksTable.astro'
+import StatsLinks from './ui/StatsLinks.astro'
+const { user } = Astro.locals
+if (!user) throw new Error('User is required')
+
+const conditions = [eq(shortUrl.userId, user.id)]
+
+const searchParam = Astro.url.searchParams.get('q') || ''
+const filterParam = Astro.url.searchParams.get('filter') || 'all'
+
+if (searchParam){
+  const searchFilter = or(
+    like(shortUrl.fullUrl, `%${searchParam}%`), 
+    like(shortUrl.code, `%${searchParam}%`)
+  );
+  if (searchFilter) {
+    conditions.push(searchFilter);
+  }
+}
+
+const links = await db.select().from(shortUrl).where(and(...conditions))
+
+const activeLinks = links.filter((link) => link.isActive).length
+const tags = await db.select().from(tag).where(eq(tag.userId, user.id))
+---
+
+<main class="mt-8 w-full space-y-6 p-8 md:mt-0">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="mb-2 text-3xl">Mis Enlaces</h1>
+      <p class="text-slate-400">Gestiona todos tus links acortados aquí</p>
+    </div>
+    <button
+      class="flex items-center gap-2 rounded-xl bg-linear-to-r from-purple-500 to-blue-500 px-5 py-3 shadow-lg shadow-purple-500/25 transition-all hover:from-purple-600 hover:to-blue-600"
+      >Nuevo Link
+    </button>
+  </div>
+  <div class="items-cente mx-auto grid max-w-xl grid-cols-1 justify-center gap-6 md:grid-cols-2">
+    <div class="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+      <div class="mb-1 text-sm text-slate-400">Total de Enlaces</div>
+      <div
+        class="bg-linear-to-r from-purple-400 to-blue-400 bg-clip-text text-3xl text-transparent"
+      >
+        {links.length}
+      </div>
+    </div>
+    <div class="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+      <div class="mb-1 text-sm text-slate-400">Enlaces Activos</div>
+      <div
+        class="bg-linear-to-r from-purple-400 to-blue-400 bg-clip-text text-3xl text-transparent"
+      >
+        {activeLinks}
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-col gap-4 md:flex-row">
+    <div class="relative flex-1">
+      <Search class="absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2 text-slate-400" />
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Buscar por URL o tags"
+        value={searchParam}
+        class="w-full rounded-xl border border-white/10 bg-white/5 py-3 pr-4 pl-12 transition-colors placeholder:text-slate-500 focus:border-purple-500/30 focus:outline-none"
+      />
+    </div>
+
+    <div class="flex gap-2">
+      <div class="relative">
+        <Filter class="absolute top-1/2 left-4 w-5 -translate-y-1/2 text-slate-400" />
+        <select
+          class="cursor-pointer appearance-none rounded-xl border border-white/10 bg-white/5 py-3 pr-8 pl-12 transition-colors focus:border-purple-500/30 focus:outline-none"
+          ><option class="bg-slate-900 text-white" value="all">Todos</option>
+          <option class="bg-slate-900 text-white" value="active">Activos</option>
+          <option class="bg-slate-900 text-white" value="inactive">Inactivos</option>
+          <option class="bg-slate-900 text-white" value="protected">Con Contraseña</option>
+          {
+            tags.map((tag) => {
+              return (
+                <option class="bg-slate-900 text-white" value={tag.name}>
+                  {tag.name}
+                </option>
+              )
+            })
+          }</select
+        >
+      </div>
+    </div>
+  </div>
+  <LinksTable/>
+</main>

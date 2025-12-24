@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Free",
+    "price": ".00",
+    "description": "Perfecto para empezar"
+  },
+  {
+    "name": "Pro",
+    "price": "9.99",
+    "description": "Con más características"
+  },
+  {
+    "name": "Business",
+    "price": "49.99",
+    "description": "Para equipos grandes"
+  }
+]

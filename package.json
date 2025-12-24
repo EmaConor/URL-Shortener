@@ -6,23 +6,36 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro", 
+    "astro": "astro",
     "db:push": "drizzle-kit push",
-    "start": "node ./dist/server/entry.mjs --port 4321 --host 0.0.0.0"
-
+    "start": "node ./dist/server/entry.mjs --port 4321 --host 0.0.0.0",
+    "db:visual": "drizzle-kit studio",
+    "db:gen": "drizzle-kit generate",
+    "db:migra": "drizzle-kit migrate",
+    "db:seed": "tsx src/db/seed.ts"
   },
   "dependencies": {
     "@astrojs/node": "9.5.1",
     "@midudev/tailwind-animations": "0.2.0",
     "@tailwindcss/vite": "4.1.18",
-    "astro": "5.16.5",
+    "astro": "5.16.6",
+    "bcryptjs": "3.0.3",
+    "better-auth": "1.4.9",
+    "dotenv": "17.2.3",
     "drizzle-orm": "0.45.1",
     "nanoid": "5.1.6",
     "postgres": "3.4.7",
-    "tailwindcss": "4.1.18"
+    "resend": "^6.6.0",
+    "sweetalert2": "^11.26.16",
+    "tailwindcss": "4.1.18",
+    "zod": "4.2.1"
   },
   "devDependencies": {
-    "@types/node": "25.0.1",
-    "drizzle-kit": "0.31.8"
+    "@types/node": "25.0.3",
+    "drizzle-kit": "0.31.8",
+    "prettier": "^3.7.4",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "tsx": "4.21.0"
   }
 }
