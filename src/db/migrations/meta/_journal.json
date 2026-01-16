@@ -15,6 +15,13 @@
       "when": 1765863313788,
       "tag": "0001_material_captain_britain",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768585821048,
+      "tag": "0002_grey_ender_wiggin",
+      "breakpoints": true
     }
   ]
 }
