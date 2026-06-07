@@ -1,202 +1,284 @@
 # URL Shortener
 
-Servicio de acortamiento de URLs full-stack con protección por contraseña, slugs personalizados y generación de códigos QR. Construido con tecnologías web modernas.
+> **Leer en espanol** > [README.es.md](README.es.md)
 
-## Características
+A full-stack URL shortener service with password protection, custom slugs, tag organization, QR code generation, and user authentication. Built with Astro 5, PostgreSQL, Drizzle ORM, and better-auth.
 
-- **Acortamiento Instantáneo**: Transforma URLs largas en enlaces cortos y elegantes usando `nanoid(6)` [1](#3-0) 
-- **Protección con Contraseña**: Asegura tus enlaces importantes con autenticación por contraseña usando bcrypt [2](#3-1) 
-- **Sistema de Tags**: Organiza tus URLs con etiquetas personalizadas (límite de 5 para plan Free) [4](#3-3) 
-- **Modos de Redirección**: Directo o con cuenta regresiva de 5 segundos [5](#3-4) 
-- **Autenticación Completa**: Sistema de auth con better-auth, soporte para email/password y GitHub OAuth [6](#3-5) 
-- **Panel de Usuario**: Dashboard para gestionar URLs y analizar estadísticas
+---
 
-## Futuras Características
+## Features
 
-- **Códigos QR**: Genera códigos QR únicos para cada enlace [3](#3-2) //Working on it
+- **Instant Shortening** - Transform long URLs into short, elegant links using `nanoid(6)`
+- **Password Protection** - Secure your important links with bcrypt password authentication
+- **Custom Slugs** - Create personalized short URLs with your own aliases
+- **Tag System** - Organize your URLs with custom tags (up to 5 on Free plan)
+- **Redirect Modes** - Direct redirect or 5-second countdown page
+- **QR Codes** - Generate unique QR codes for each shortened link
+- **User Dashboard** - Manage your URLs, tags, and view analytics
+- **Authentication** - Email/password login with GitHub OAuth support via better-auth
+
+---
 
 ## Tech Stack
 
 ### Frontend
-- **Astro 5.16.6** - Framework web moderno
-- **TypeScript** - Tipado estático
-- **Tailwind CSS** - Framework de CSS con animaciones personalizadas
+- **Astro 5.16** - Modern web framework with server-side rendering
+- **TypeScript** - Static type checking
+- **Tailwind CSS 4** - Utility-first CSS framework with custom animations
+- **SweetAlert2** - Beautiful alert dialogs
 
 ### Backend
-- **PostgreSQL** - Base de datos principal
-- **Drizzle ORM** - ORM para PostgreSQL
-- **better-auth** - Sistema de autenticación
-- **bcryptjs** - Hash de contraseñas
-- **Zod** - Validación de esquemas
-- **nanoid** - Generación de IDs únicos
+- **PostgreSQL 15** - Primary database
+- **Drizzle ORM** - Type-safe SQL ORM for PostgreSQL
+- **better-auth** - Full-featured authentication system
+- **bcryptjs** - Password hashing
+- **Zod** - Schema validation
+- **nanoid** - Unique ID generation
+- **Resend** - Email delivery service
 
-## Instalación Rápida
+### DevOps
+- **Docker** - Containerized deployment with docker-compose
+- **Vercel** - Serverless deployment adapter
+- **pgAdmin** - Database administration interface
 
-### Prerrequisitos
-- Node.js 18+
-- PostgreSQL 15+
-- Docker (opcional)
+---
 
-### 1. Clonar el repositorio
+## Getting Started
+
+### Prerequisites
+
+- **Node.js 18+** - JavaScript runtime
+- **pnpm** - Package manager (install with `corepack enable` or `npm i -g pnpm`)
+- **PostgreSQL 15+** - Database (or use Docker)
+- **Docker** (optional) - For containerized database and services
+
+### 1. Clone the repository
+
 ```bash
 git clone https://github.com/EmaConor/URL-Shortener.git
 cd URL-Shortener
 ```
 
-### 2. Instalar dependencias
+### 2. Install dependencies
+
 ```bash
 pnpm install
 ```
 
-### 3. Configurar variables de entorno
-Crea un archivo `.env` con las siguientes variables:
+### 3. Configure environment variables
 
-```env
-# Database
-DATABASE_URL="postgresql://user:password@localhost:5432/url_shortener"
-POSTGRES_USER="your_user"
-POSTGRES_PASSWORD="your_password"
-POSTGRES_DB="url_shortener"
+Copy the example environment file and fill in your values:
 
-# Authentication
-BETTER_AUTH_SECRET="your-secret-key"
-BETTER_AUTH_URL="http://localhost:4321/api/auth"
-
-# GitHub OAuth (opcional)
-GITHUB_CLIENT_ID="your_github_client_id"
-GITHUB_CLIENT_SECRET="your_github_client_secret"
-
-# Email (opcional)
-RESEND_API_KEY="your_resend_api_key"
+```bash
+cp .env.example .env
 ```
 
-### 4. Configurar base de datos
+Below is a description of all required and optional variables:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | PostgreSQL connection string |
+| `POSTGRES_USER` | Yes | PostgreSQL username |
+| `POSTGRES_PASSWORD` | Yes | PostgreSQL password |
+| `POSTGRES_DB` | Yes | PostgreSQL database name |
+| `BETTER_AUTH_SECRET` | Yes | Secret key for session encryption (generate with `openssl rand -hex 32`) |
+| `BETTER_AUTH_URL` | Yes | Full URL of your application (`http://localhost:4321` for development) |
+| `PUBLIC_BETTER_AUTH_URL` | Yes | Same as `BETTER_AUTH_URL` (publicly accessible) |
+| `GITHUB_CLIENT_ID` | No | GitHub OAuth App client ID |
+| `GITHUB_CLIENT_SECRET` | No | GitHub OAuth App client secret |
+| `RESEND_API_KEY` | No | Resend API key for email functionality |
+
+### 4. Set up the database
+
+Generate and apply database migrations, then optionally seed with demo data:
+
 ```bash
-# Generar migraciones
+# Generate migration files from schema
 pnpm run db:gen
 
-# Ejecutar migraciones
+# Apply migrations to the database
 pnpm run db:migra
+
+# (Optional) Seed database with demo users
+pnpm run db:seed
 ```
 
-### 5. Iniciar desarrollo
+> **Note:** Make sure your PostgreSQL server is running and accessible via the `DATABASE_URL` configured in your `.env` file.
+
+### 5. Start the development server
+
 ```bash
 pnpm run dev
 ```
 
-Visita `http://localhost:4321` para ver la aplicación.
+The application will be available at **http://localhost:4321**.
+
+---
 
 ## Docker Setup
 
-Usa Docker Compose para un entorno completo:
+For a fully containerized environment (PostgreSQL + pgAdmin + web app):
 
 ```bash
-# Iniciar todos los servicios
+# Start all services in the background
 docker-compose up -d
 
-# Ver logs
+# View logs
 docker-compose logs -f
 
-# Detener servicios
+# Stop all services
 docker-compose down
 ```
 
-El archivo `docker-compose.yml` incluye:
-- **PostgreSQL 15** - Base de datos
-- **pgAdmin** - Interfaz de administración (puerto 5050)
-- **Aplicación web** - Servidor Astro (puerto 4321) [7](#3-6) 
+### Services included in docker-compose
 
-## Estructura del Proyecto
+| Service | Port | Description |
+|---|---|---|
+| **PostgreSQL 15** | 5432 | Primary database |
+| **pgAdmin** | 5050 | Web-based database administration |
+| **Web App** | 4321 | Astro server |
+
+### Access pgAdmin
+
+1. Open http://localhost:5050
+2. Login with the credentials from your `.env` file (`PGADMIN_DEFAULT_EMAIL` / `PGADMIN_DEFAULT_PASSWORD`)
+3. Register the PostgreSQL server:
+   - Host: `postgres`
+   - Port: `5432`
+   - Database: `url_shortener` (or your `POSTGRES_DB` value)
+   - Username: your `POSTGRES_USER` value
+   - Password: your `POSTGRES_PASSWORD` value
+
+---
+
+## Project Structure
 
 ```
 src/
-├── actions/           # Server Actions de Astro
-│   └── index.ts      # Acciones principales (URLs, tags, auth)
-├── components/       # Componentes de Astro
+├── actions/           # Astro Server Actions (URLs, tags, auth)
+│   └── index.ts
+├── components/        # Reusable Astro components
 │   ├── Features.astro
 │   ├── UrlForm.astro
 │   └── Window.astro
-├── db/              # Configuración de base de datos
-│   ├── migrations/  # Migraciones de Drizzle
-│   ├── seed/        # Datos iniciales
-│   └── schema/      # Esquemas de tablas
-├── layouts/         # Layouts de Astro
-├── pages/           # Páginas y API routes
-│   ├── api/auth/[...all].ts  # Auth API
-│   └── [code].astro          # Página de redirección
-├── middleware.ts    # Middleware de protección de rutas
-├── utils/           # Utilidades
-│   ├── auth.ts      # Configuración de better-auth
-│   └── auth-client.ts
-├── validations/     # Validaciones (Zod)
-│   └── auth.ts      # Validaciones de Auth
+├── db/                # Database configuration
+│   ├── migrations/    # Drizzle migration files
+│   ├── seed/          # Database seed data
+│   └── schema/        # Table schemas and relations
+├── layouts/           # Page layouts
+├── pages/             # Application pages and API routes
+│   ├── api/auth/[...all].ts  # Authentication API
+│   └── [code].astro          # Redirect handler
+├── middleware.ts      # Route protection middleware
+├── utils/             # Utility functions
+│   ├── auth.ts        # better-auth configuration
+│   └── auth-client.ts # Auth client setup
+└── validations/       # Zod validation schemas
+    └── auth.ts
 ```
 
-## Arquitectura de Autenticación
+---
 
-El sistema usa **better-auth** con múltiples capas de seguridad:
+## Authentication Architecture
 
-1. **Middleware de Rutas**: Protección centralizada en `src/middleware.ts` [8](#3-7) 
-2. **Server Actions**: Verificación de ownership en cada acción [9](#3-8) 
-3. **Protección de URLs**: Contraseña con cookies de acceso [10](#3-9) 
+The application uses **better-auth** with multiple security layers:
 
-### Rutas Protegidas
-- **Rutas Privadas**: `/dashboard`, `/settings`, `/admin`
-- **Rutas de Auth**: `/signIn`, `/signUp`
-- **API Routes**: `/api/auth/*`
+1. **Route Middleware** - Centralized protection in `src/middleware.ts`
+2. **Server Actions** - Ownership verification on every action
+3. **URL Protection** - Per-link password with access cookies
 
-## 🗄️ Esquema de Base de Datos
+### Protected routes
 
-### Tablas Principales
-- **user**: Usuarios con plan y estado [11](#3-10) 
-- **short_url**: URLs acortadas con configuración de protección [12](#3-11) 
-- **tag**: Sistema de etiquetas por usuario
-- **url_protection**: Contraseñas de URLs protegidas
-- **session**: Sesiones de autenticación
+| Route | Access |
+|---|---|
+| `/dashboard`, `/settings`, `/admin` | Authenticated users only |
+| `/signIn`, `/signUp` | Redirect to dashboard if already authenticated |
+| `/api/auth/*` | Authentication API (managed by better-auth) |
 
-### Índices de Rendimiento
-- `idx_short_url_code` para búsqueda rápida por código [13](#3-12) 
-- `idx_user_email` para autenticación rápida
+---
 
-## Despliegue
+## Database Schema
 
-### Cloudflare Pages
-1. Conecta tu repositorio a Cloudflare Pages
-2. Configura las variables de entorno en el dashboard
-3. Despliegue automático en cada push a main
+### Main tables
 
-### Variables de Entorno de Producción
-- `BETTER_AUTH_SECRET`: Clave secreta para sesiones
-- `BETTER_AUTH_URL`: URL completa del sitio
-- `DATABASE_URL`: URL de base de datos PostgreSQL
-- `GITHUB_CLIENT_ID/SECRET`: Para OAuth de GitHub
+- **user** - Application users with plan and status
+- **short_url** - Shortened URLs with protection configuration
+- **tag** - User-defined tag system
+- **url_protection** - Passwords for protected URLs
+- **session** - Authentication sessions (managed by better-auth)
+
+### Performance indexes
+
+- `idx_short_url_code` - Fast lookup by short code
+- `idx_user_email` - Fast authentication queries
+
+---
+
+## Deployment
+
+### Deploy to Vercel
+
+1. Push your repository to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Configure the following environment variables in the Vercel dashboard:
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Production PostgreSQL connection string (use a managed provider like Neon, Supabase, or Railway) |
+| `BETTER_AUTH_SECRET` | Secret key for session encryption |
+| `BETTER_AUTH_URL` | Full URL of your production site (e.g., `https://your-domain.vercel.app`) |
+| `PUBLIC_BETTER_AUTH_URL` | Same as `BETTER_AUTH_URL` |
+| `GITHUB_CLIENT_ID` | (Optional) GitHub OAuth client ID |
+| `GITHUB_CLIENT_SECRET` | (Optional) GitHub OAuth client secret |
+| `RESEND_API_KEY` | (Optional) Resend API key |
+
+4. Set the build command to `pnpm run build` and output directory to `dist`
+5. Deploy - Vercel will automatically deploy on every push to the main branch
+
+### Build for production
+
+```bash
+pnpm run build
+pnpm run preview
+```
+
+---
 
 ## API Endpoints
 
-### Server Actions
-- `setShortUrl`: Crear nueva URL acortada
-- `setShortUrlUser`: Crear URL con autenticación
-- `addTagUser`: Crear etiquetas personalizadas
-- `updateUrl`: Actualizar configuración de URL
-- `deleteUrl`: Eliminar URL
+### Server Actions (Astro Actions)
 
-### Authentication API [14](#3-13) 
-- `POST /api/auth/sign-in`: Iniciar sesión
-- `POST /api/auth/sign-up`: Registrarse
-- `POST /api/auth/sign-out`: Cerrar sesión
-- `GET /api/auth/session`: Obtener sesión actual
+| Action | Description |
+|---|---|
+| `setShortUrl` | Create a new shortened URL (public) |
+| `setShortUrlUser` | Create a shortened URL (authenticated) |
+| `addTagUser` | Create custom tags |
+| `updateUrl` | Update URL configuration |
+| `deleteUrl` | Delete a shortened URL |
 
-## Contribuir
+### Authentication API
 
-1. Fork el proyecto
-2. Crear feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit cambios (`git commit -m 'Add amazing feature'`)
-4. Push al branch (`git push origin feature/amazing-feature`)
-5. Abrir Pull Request
+| Endpoint | Description |
+|---|---|
+| `POST /api/auth/sign-in` | Sign in with email and password |
+| `POST /api/auth/sign-up` | Create a new account |
+| `POST /api/auth/sign-out` | Sign out current session |
+| `GET /api/auth/session` | Get current session information |
 
-## 🔗 Links
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## Links
 
 - **Live Demo**: https://short.emaconor.site
-- **Repositorio**: https://github.com/EmaConor/URL-Shortener
-- **Issues**: https://github.com/EmaConor/URL-Shortener/issues
-```
+- **Repository**: https://github.com/EmaConor/URL-Shortener
+- **Issue Tracker**: https://github.com/EmaConor/URL-Shortener/issues
